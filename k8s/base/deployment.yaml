@@ -80,7 +80,7 @@ spec:
             - name: PUBLIC_MEDIA_ORIGIN_PRODUCTION
               value: "https://media.stephaniegiorgis.ch"
             - name: PUBLIC_MEDIA_ORIGIN_STAGING
-              value: "https://media.staging.stephaniegiorgis.ch"
+              value: "https://staging-media.stephaniegiorgis.ch"
             - name: CLOUDFLARE_ZONE_ID
               valueFrom:
                 secretKeyRef:

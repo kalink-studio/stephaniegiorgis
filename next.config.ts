@@ -23,7 +23,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'media.staging.stephaniegiorgis.ch',
+        hostname: 'staging-media.stephaniegiorgis.ch',
       },
     ],
   },
