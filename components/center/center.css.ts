@@ -6,7 +6,7 @@ import { calc } from '@vanilla-extract/css-utils';
 export const centerMaxInlineSize = createVar();
 
 export const center = style({
-  inlineSize: `min(${centerMaxInlineSize}, ${calc('100vw').subtract(calc.multiply(centerVars.spacing.rootGutters, 2)).toString()})`,
+  inlineSize: `min(${centerMaxInlineSize}, ${calc('100%').subtract(calc.multiply(centerVars.spacing.rootGutters, 2)).toString()})`,
   maxInlineSize: centerMaxInlineSize,
 
   vars: {

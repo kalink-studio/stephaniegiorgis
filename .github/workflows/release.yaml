@@ -83,6 +83,32 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           ref: ${{ needs.detect-release.outputs.release_sha }}
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify sharp
+        run: node -e "require('sharp'); console.log('sharp ok')"
+
+      - name: Run production Payload migrations
+        env:
+          PAYLOAD_MIGRATING: 'true'
+          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+          DATABASE_URL_DIRECT: ${{ secrets.PRODUCTION_DATABASE_URL_DIRECT }}
+          PAYLOAD_SECRET: ${{ secrets.PRODUCTION_PAYLOAD_SECRET }}
+          PAYLOAD_PUBLIC_SERVER_URL: ${{ secrets.PRODUCTION_PAYLOAD_PUBLIC_SERVER_URL }}
+        run: pnpm payload migrate
+
       - name: Get version from package
         id: version
         run: |
@@ -141,6 +167,50 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify sharp
+        run: node -e "require('sharp'); console.log('sharp ok')"
+
+      - name: Run Payload migrations
+        env:
+          STAGING_DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+          STAGING_DATABASE_URL_DIRECT: ${{ secrets.STAGING_DATABASE_URL_DIRECT }}
+          STAGING_PAYLOAD_SECRET: ${{ secrets.STAGING_PAYLOAD_SECRET }}
+          STAGING_PAYLOAD_PUBLIC_SERVER_URL: ${{ secrets.STAGING_PAYLOAD_PUBLIC_SERVER_URL }}
+          PRODUCTION_DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+          PRODUCTION_DATABASE_URL_DIRECT: ${{ secrets.PRODUCTION_DATABASE_URL_DIRECT }}
+          PRODUCTION_PAYLOAD_SECRET: ${{ secrets.PRODUCTION_PAYLOAD_SECRET }}
+          PRODUCTION_PAYLOAD_PUBLIC_SERVER_URL: ${{ secrets.PRODUCTION_PAYLOAD_PUBLIC_SERVER_URL }}
+        run: |
+          export PAYLOAD_MIGRATING=true
+
+          if [ "${{ inputs.environment }}" = "staging" ]; then
+            export DATABASE_URL="$STAGING_DATABASE_URL"
+            export DATABASE_URL_DIRECT="$STAGING_DATABASE_URL_DIRECT"
+            export PAYLOAD_SECRET="$STAGING_PAYLOAD_SECRET"
+            export PAYLOAD_PUBLIC_SERVER_URL="$STAGING_PAYLOAD_PUBLIC_SERVER_URL"
+          else
+            export DATABASE_URL="$PRODUCTION_DATABASE_URL"
+            export DATABASE_URL_DIRECT="$PRODUCTION_DATABASE_URL_DIRECT"
+            export PAYLOAD_SECRET="$PRODUCTION_PAYLOAD_SECRET"
+            export PAYLOAD_PUBLIC_SERVER_URL="$PRODUCTION_PAYLOAD_PUBLIC_SERVER_URL"
+          fi
+
+          pnpm payload migrate
 
       - name: Update kustomization
         run: |

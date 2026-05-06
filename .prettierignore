@@ -1,2 +1,4 @@
 .slicemachine
 .next
+migrations
+payload-types.ts

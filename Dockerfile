@@ -5,7 +5,7 @@
 # =============================================================================
 # Stage 1: Dependencies
 # =============================================================================
-FROM node:24-alpine AS deps
+FROM node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 ENV SCARF_ANALYTICS=false
@@ -26,7 +26,7 @@ RUN node -e "require('sharp'); console.log('sharp ok')"
 # =============================================================================
 # Stage 2: Builder
 # =============================================================================
-FROM node:24-alpine AS builder
+FROM node:20-alpine AS builder
 WORKDIR /app
 ENV SCARF_ANALYTICS=false
 
@@ -38,6 +38,7 @@ COPY . .
 
 # Disable telemetry during build
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV PAYLOAD_SECRET=build-time-payload-secret
 
 # Build arguments for environment variables needed at build time
 # ARG NEXT_PUBLIC_API_URL
@@ -52,7 +53,7 @@ RUN \
 # =============================================================================
 # Stage 3: Runner
 # =============================================================================
-FROM node:24-alpine AS runner
+FROM node:20-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production

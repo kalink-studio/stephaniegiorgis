@@ -40,6 +40,8 @@ jobs:
         run: pnpm test
 
       - name: Build app
+        env:
+          PAYLOAD_SECRET: build-time-payload-secret
         run: pnpm build
 
   build-and-deploy-staging:
@@ -73,6 +75,15 @@ jobs:
 
       - name: Verify sharp
         run: node -e "require('sharp'); console.log('sharp ok')"
+
+      - name: Run staging Payload migrations
+        env:
+          PAYLOAD_MIGRATING: 'true'
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+          DATABASE_URL_DIRECT: ${{ secrets.STAGING_DATABASE_URL_DIRECT }}
+          PAYLOAD_SECRET: ${{ secrets.STAGING_PAYLOAD_SECRET }}
+          PAYLOAD_PUBLIC_SERVER_URL: ${{ secrets.STAGING_PAYLOAD_PUBLIC_SERVER_URL }}
+        run: pnpm payload migrate
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3

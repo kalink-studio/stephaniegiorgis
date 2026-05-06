@@ -3,13 +3,15 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
+      "@payload-config": ["./payload.config.ts"],
       "@/*": ["./*"],
+      "@/payload/*": ["payload/*"],
       "@/components/*": ["components/*"],
-      "@/slices/*": ["slices/*"],
       "@/styles/*": ["styles/*"],
       "@/types/*": ["types/*"]
     },
     "allowJs": true,
+    "allowImportingTsExtensions": true,
     "esModuleInterop": true,
     "lib": ["esnext", "DOM", "DOM.Iterable"]
   },
