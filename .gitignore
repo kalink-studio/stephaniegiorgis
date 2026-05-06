@@ -29,6 +29,9 @@ yarn-error.log*
 # local env files
 .env*.local
 
+# local Cloudflare Worker deploy config
+cloudflare/media-worker/wrangler.toml
+
 # vercel
 .vercel
 
