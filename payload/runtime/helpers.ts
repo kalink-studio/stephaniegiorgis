@@ -120,7 +120,7 @@ const isUploadDocument = (value: unknown): value is UploadDocument => {
 const DEFAULT_S3_PUBLIC_ENDPOINT = 'https://s3.pub2.infomaniak.cloud';
 const DEFAULT_PRODUCTION_MEDIA_ORIGIN = 'https://media.stephaniegiorgis.ch';
 const DEFAULT_STAGING_MEDIA_ORIGIN =
-  'https://media.staging.stephaniegiorgis.ch';
+  'https://staging-media.stephaniegiorgis.ch';
 
 const trimTrailingSlash = (value: string) => value.replace(/\/+$/, '');
 
@@ -226,6 +226,16 @@ const getUploadPathFromS3Path = (pathname: string) => {
   return null;
 };
 
+const getUploadPathFromPayloadFilePath = (pathname: string) => {
+  const match = pathname.match(/^\/api\/(media|derivatives)\/file\/(.+)$/);
+
+  if (!match) {
+    return null;
+  }
+
+  return `/${match[1]}/${match[2]}`;
+};
+
 const getUploadVersion = (media?: Partial<UploadDocument> | null) => {
   if (!media) {
     return null;
@@ -267,9 +277,24 @@ export function toPublicMediaUrl(
   if (isMediaPath(parsed.pathname)) {
     uploadPath = parsed.pathname;
   } else {
+    uploadPath = getUploadPathFromPayloadFilePath(parsed.pathname);
+
+    if (uploadPath) {
+      const publicServerUrl = normalizeOrigin(
+        process.env.PAYLOAD_PUBLIC_SERVER_URL,
+      );
+
+      if (
+        parsed.origin !== publicMediaOrigin &&
+        parsed.origin !== publicServerUrl
+      ) {
+        uploadPath = null;
+      }
+    }
+
     const s3PublicEndpoint = getS3PublicEndpoint();
 
-    if (parsed.origin === s3PublicEndpoint) {
+    if (!uploadPath && parsed.origin === s3PublicEndpoint) {
       uploadPath = getUploadPathFromS3Path(parsed.pathname);
     }
   }

@@ -4,10 +4,15 @@ compatibility_date = "2026-05-06"
 
 routes = [
   { pattern = "media.stephaniegiorgis.ch/*", zone_name = "stephaniegiorgis.ch" },
-  { pattern = "media.staging.stephaniegiorgis.ch/*", zone_name = "stephaniegiorgis.ch" },
+  { pattern = "staging-media.stephaniegiorgis.ch/*", zone_name = "stephaniegiorgis.ch" },
 ]
 
 [vars]
 S3_ENDPOINT = "https://s3.pub2.infomaniak.cloud"
+S3_REGION = "us-east-1"
 S3_BUCKET_PRODUCTION = "replace-with-production-bucket"
 S3_BUCKET_STAGING = "replace-with-staging-bucket"
+
+# Store credentials as Worker secrets, not plain vars:
+#   npx wrangler secret put S3_ACCESS_KEY_ID
+#   npx wrangler secret put S3_SECRET_ACCESS_KEY
