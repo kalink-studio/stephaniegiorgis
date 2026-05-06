@@ -71,6 +71,7 @@ jobs:
     if: github.event_name == 'workflow_run' && needs.detect-release.outputs.should_deploy == 'true'
     needs: detect-release
     runs-on: ubuntu-latest
+    environment: production
     permissions:
       contents: write
       packages: write
@@ -159,6 +160,7 @@ jobs:
     name: Manual Deploy
     if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
     permissions:
       contents: write
 
