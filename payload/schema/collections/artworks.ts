@@ -1,4 +1,4 @@
-import { createPreviewUrl, resolveArtworkPath } from '../../runtime/preview.ts';
+import { createPreviewUrl } from '../../runtime/preview.ts';
 import { authenticated, publishedOrAuthenticated } from '../access/index.ts';
 import { documentationAudioBlock } from '../blocks/documentationAudio.ts';
 import { documentationImageGridBlock } from '../blocks/documentationImageGrid.ts';
@@ -9,6 +9,7 @@ import {
   transformPresets,
 } from '../fields/imageTransforms.ts';
 import { seoField } from '../fields/seo.ts';
+import { getArtworkRevalidationEntries } from '../utils/publicInvalidation.ts';
 import { triggerRevalidation } from '../utils/revalidate.ts';
 
 import type { CollectionConfig } from 'payload';
@@ -56,20 +57,19 @@ export const Artworks: CollectionConfig = {
       },
     ],
     afterChange: [
-      async ({ doc }) => {
-        await triggerRevalidation([
-          { path: '/artworks' },
-          { path: resolveArtworkPath(doc.slug) },
-        ]);
+      async ({ doc, operation, previousDoc }) => {
+        await triggerRevalidation(
+          getArtworkRevalidationEntries(
+            doc,
+            operation === 'update' ? previousDoc : null,
+          ),
+        );
         return doc;
       },
     ],
     afterDelete: [
       async ({ doc }) => {
-        await triggerRevalidation([
-          { path: '/artworks' },
-          { path: resolveArtworkPath(doc.slug) },
-        ]);
+        await triggerRevalidation(getArtworkRevalidationEntries(doc));
         return doc;
       },
     ],

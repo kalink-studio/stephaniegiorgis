@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { DocumentationRenderer } from '@/components/documentation';
 import { Hidden } from '@/components/hidden';
 import { LexicalRichText } from '@/components/rich-text/lexical-rich-text';
+import { getMediaUrl } from '@/payload/runtime';
 import { getArtworkBySlug } from '@/payload/runtime/queries';
 
 import { artworkPage, artworkData, artworkDescription } from './page.css';
@@ -28,12 +29,14 @@ export async function generateMetadata({
     return {};
   }
 
+  const imageUrl = getMediaUrl(artwork.meta?.image);
+
   return {
     title: artwork.meta?.title ?? artwork.title,
     description: artwork.meta?.description ?? undefined,
     openGraph: {
       title: artwork.meta?.title ?? artwork.title,
-      images: artwork.meta?.image?.url ? [{ url: artwork.meta.image.url }] : [],
+      images: imageUrl ? [{ url: imageUrl }] : [],
     },
   };
 }

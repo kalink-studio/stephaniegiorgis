@@ -35,9 +35,12 @@ export type {
 
 export {
   getMediaUrl,
+  getMediaPurgeUrls,
+  getPublicMediaOrigin,
   getMediaDimensions,
   getMediaAlt,
   getSelectedTransformKey,
+  toPublicMediaUrl,
   resolveDocumentUrl,
   resolveNavItemUrl,
   transformKeyToRatio,

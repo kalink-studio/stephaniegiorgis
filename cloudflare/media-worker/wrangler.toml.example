@@ -1,0 +1,13 @@
+name = "stephaniegiorgis-media"
+main = "worker.js"
+compatibility_date = "2026-05-06"
+
+routes = [
+  { pattern = "media.stephaniegiorgis.ch/*", zone_name = "stephaniegiorgis.ch" },
+  { pattern = "media.staging.stephaniegiorgis.ch/*", zone_name = "stephaniegiorgis.ch" },
+]
+
+[vars]
+S3_ENDPOINT = "https://s3.pub2.infomaniak.cloud"
+S3_BUCKET_PRODUCTION = "replace-with-production-bucket"
+S3_BUCKET_STAGING = "replace-with-staging-bucket"

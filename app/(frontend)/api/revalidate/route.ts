@@ -1,6 +1,8 @@
 import { revalidatePath } from 'next/cache';
 import { NextResponse } from 'next/server';
 
+import { purgeCloudflareUrls } from '@/payload/schema/utils/cloudflare';
+
 export async function POST(request: Request) {
   const body = await request.json();
 
@@ -9,6 +11,7 @@ export async function POST(request: Request) {
   }
 
   const entries = Array.isArray(body.entries) ? body.entries : [];
+  const purgeUrls = Array.isArray(body.purgeUrls) ? body.purgeUrls : [];
 
   for (const entry of entries) {
     if (!entry?.path || typeof entry.path !== 'string') {
@@ -23,7 +26,10 @@ export async function POST(request: Request) {
     revalidatePath(entry.path);
   }
 
+  const purge = await purgeCloudflareUrls(purgeUrls);
+
   return NextResponse.json({
+    purge,
     revalidated: true,
     count: entries.length,
     now: Date.now(),

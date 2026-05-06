@@ -55,6 +55,8 @@ spec:
                 secretKeyRef:
                   name: stephaniegiorgis-secrets
                   key: S3_ENDPOINT
+            - name: S3_PUBLIC_ENDPOINT
+              value: https://s3.pub2.infomaniak.cloud
             - name: S3_REGION
               valueFrom:
                 secretKeyRef:
@@ -75,6 +77,22 @@ spec:
                 secretKeyRef:
                   name: stephaniegiorgis-secrets
                   key: S3_BUCKET
+            - name: PUBLIC_MEDIA_ORIGIN_PRODUCTION
+              value: "https://media.stephaniegiorgis.ch"
+            - name: PUBLIC_MEDIA_ORIGIN_STAGING
+              value: "https://media.staging.stephaniegiorgis.ch"
+            - name: CLOUDFLARE_ZONE_ID
+              valueFrom:
+                secretKeyRef:
+                  name: stephaniegiorgis-secrets
+                  key: CLOUDFLARE_ZONE_ID
+            - name: CLOUDFLARE_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: stephaniegiorgis-secrets
+                  key: CLOUDFLARE_API_TOKEN
+            - name: CLOUDFLARE_PURGE_ENABLED
+              value: "true"
             - name: RESEND_KEY
               valueFrom:
                 secretKeyRef:

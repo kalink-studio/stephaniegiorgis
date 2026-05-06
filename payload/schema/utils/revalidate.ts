@@ -1,13 +1,26 @@
-interface RevalidateEntry {
+export interface RevalidateEntry {
   path: string;
   type?: 'page' | 'layout';
 }
 
-export const triggerRevalidation = async (entries: RevalidateEntry[]) => {
+interface RevalidationRequest {
+  entries?: RevalidateEntry[];
+  purgeUrls?: string[];
+}
+
+export const triggerRevalidation = async (
+  input: RevalidateEntry[] | RevalidationRequest,
+) => {
+  const entries = Array.isArray(input) ? input : (input.entries ?? []);
+  const purgeUrls = Array.isArray(input) ? [] : (input.purgeUrls ?? []);
   const secret = process.env.REVALIDATE_SECRET;
   const serverURL = process.env.PAYLOAD_PUBLIC_SERVER_URL;
 
-  if (!secret || !serverURL || entries.length === 0) {
+  if (
+    !secret ||
+    !serverURL ||
+    (entries.length === 0 && purgeUrls.length === 0)
+  ) {
     return;
   }
 
@@ -20,6 +33,7 @@ export const triggerRevalidation = async (entries: RevalidateEntry[]) => {
       body: JSON.stringify({
         secret,
         entries,
+        purgeUrls,
       }),
     });
   } catch {

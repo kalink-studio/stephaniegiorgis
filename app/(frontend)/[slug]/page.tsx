@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 
 import { PageLayoutRenderer } from '@/components/blocks';
+import { getMediaUrl } from '@/payload/runtime';
 import { getPageBySlug } from '@/payload/runtime/queries';
 
 import type { Metadata } from 'next';
@@ -23,12 +24,14 @@ export async function generateMetadata({
     return {};
   }
 
+  const imageUrl = getMediaUrl(page.meta?.image);
+
   return {
     title: page.meta?.title ?? page.title,
     description: page.meta?.description ?? undefined,
     openGraph: {
       title: page.meta?.title ?? page.title,
-      images: page.meta?.image?.url ? [{ url: page.meta.image.url }] : [],
+      images: imageUrl ? [{ url: imageUrl }] : [],
     },
   };
 }
