@@ -49,6 +49,7 @@ jobs:
     needs: test
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
+    environment: staging
     permissions:
       contents: write
       packages: write
