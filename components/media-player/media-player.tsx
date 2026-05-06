@@ -4,7 +4,6 @@ import '@vidstack/react/player/styles/default/theme.css';
 import '@vidstack/react/player/styles/default/layouts/audio.css';
 import '@vidstack/react/player/styles/default/layouts/video.css';
 
-import { PrismicImageProps } from '@prismicio/react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
 import {
   MediaPlayer as MediaPlayerPrimitive,
@@ -22,7 +21,10 @@ import { clsx } from 'clsx';
 import { maxWidthVar, mediaPlayer } from './media-player.css';
 
 interface MediaPlayerProps {
-  poster?: PrismicImageProps['field'];
+  poster?: {
+    url?: string | null;
+    alt?: string | null;
+  } | null;
   src: VideoSrc[] | string;
   title?: string;
   ratio?: '16/9' | '4/3' | '1/1';

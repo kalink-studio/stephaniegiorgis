@@ -8,18 +8,34 @@ import { type ComponentProps } from 'react';
 
 import { center, centerMaxInlineSize } from './center.css';
 
+const centerSizeMap = {
+  small: '720px',
+  medium: '960px',
+  large: `${breakpoints.xl}px`,
+  full: '99999px',
+} as const;
+
+export type CenterSize = keyof typeof centerSizeMap;
+
 type CenterOverrideProps = ComponentProps<typeof SeedlyCenter> & {
-  maxInlineSize?: number;
+  maxInlineSize?: number | string;
+  size?: CenterSize;
 };
 
 export function Center({
   className,
-  maxInlineSize = breakpoints.xl,
+  maxInlineSize,
+  size = 'large',
   style,
   ...props
 }: CenterOverrideProps) {
+  const resolvedMaxInlineSize =
+    typeof maxInlineSize === 'number'
+      ? `${maxInlineSize}px`
+      : (maxInlineSize ?? centerSizeMap[size]);
+
   const inlineVars = assignInlineVars({
-    [centerMaxInlineSize]: `${maxInlineSize}px`,
+    [centerMaxInlineSize]: resolvedMaxInlineSize,
   });
 
   return (

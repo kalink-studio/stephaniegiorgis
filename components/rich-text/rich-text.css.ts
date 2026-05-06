@@ -5,7 +5,7 @@ export const richText = style({});
 
 export const blockquote = style([
   {
-    paddingInline: sys.spacing[8],
+    paddingInline: sys.spacing[12],
     fontStyle: 'italic',
   },
 ]);
