@@ -1,7 +1,8 @@
-import { createPreviewUrl, resolvePagePath } from '../../runtime/preview.ts';
+import { createPreviewUrl } from '../../runtime/preview.ts';
 import { authenticated, publishedOrAuthenticated } from '../access/index.ts';
 import { pageLayoutField } from '../fields/pageLayout.ts';
 import { seoField } from '../fields/seo.ts';
+import { getPageRevalidationEntries } from '../utils/publicInvalidation.ts';
 import { triggerRevalidation } from '../utils/revalidate.ts';
 
 import type { CollectionConfig } from 'payload';
@@ -35,14 +36,19 @@ export const Pages: CollectionConfig = {
   },
   hooks: {
     afterChange: [
-      async ({ doc }) => {
-        await triggerRevalidation([{ path: resolvePagePath(doc.slug) }]);
+      async ({ doc, operation, previousDoc }) => {
+        await triggerRevalidation(
+          getPageRevalidationEntries(
+            doc,
+            operation === 'update' ? previousDoc : null,
+          ),
+        );
         return doc;
       },
     ],
     afterDelete: [
       async ({ doc }) => {
-        await triggerRevalidation([{ path: resolvePagePath(doc.slug) }]);
+        await triggerRevalidation(getPageRevalidationEntries(doc));
         return doc;
       },
     ],

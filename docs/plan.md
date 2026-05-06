@@ -296,7 +296,7 @@ The variable names are the same in all environments, but values differ by enviro
 
 Use:
 
-- `S3_ENDPOINT=https://s3.pub1.infomaniak.cloud`
+- `S3_ENDPOINT=https://s3.pub2.infomaniak.cloud`
 - `S3_REGION=us-east-1`
 
 Infomaniak-specific requirements:
@@ -353,7 +353,7 @@ Goals:
 
 Configure the S3 adapter / client with:
 
-- endpoint `https://s3.pub1.infomaniak.cloud`
+- endpoint `https://s3.pub2.infomaniak.cloud`
 - region `us-east-1`
 - credentials from env
 - `forcePathStyle: true`

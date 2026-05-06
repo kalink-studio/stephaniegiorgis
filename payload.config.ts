@@ -20,6 +20,10 @@ import { Media } from './payload/schema/collections/media.ts';
 import { Pages } from './payload/schema/collections/pages.ts';
 import { Users } from './payload/schema/collections/users.ts';
 import { MainNavigation } from './payload/schema/globals/mainNavigation.ts';
+import {
+  purgeUploadAfterChange,
+  purgeUploadAfterDelete,
+} from './payload/schema/utils/publicInvalidation.ts';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -77,6 +81,10 @@ const derivatives = createImageTransformDerivativeCollection({
     create: authenticated,
     update: authenticated,
     delete: authenticated,
+  },
+  hooks: {
+    afterChange: [purgeUploadAfterChange],
+    afterDelete: [purgeUploadAfterDelete],
   },
 });
 
