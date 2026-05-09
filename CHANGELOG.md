@@ -1,5 +1,16 @@
 # stephaniegiorgis
 
+## 0.2.0
+
+### Minor Changes
+
+- 20fdb14: Migrate the site from Prismic to Payload CMS, including Payload schema, migrations, frontend rendering, media handling, and staging deployment configuration.
+
+### Patch Changes
+
+- 7ba25d1: Fix artwork documentation layouts that display a single image.
+- d9812ec: Fix contact page form alignment and message field sizing.
+
 ## 0.1.2
 
 ### Patch Changes
