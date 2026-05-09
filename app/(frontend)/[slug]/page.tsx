@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 
 import { PageLayoutRenderer } from '@/components/blocks';
+import { Center } from '@/components/center';
 import { getMediaUrl } from '@/payload/runtime';
 import { getPageBySlug } from '@/payload/runtime/queries';
 
@@ -46,6 +47,14 @@ export default async function StandardPage({
 
   if (!page) {
     notFound();
+  }
+
+  if (slug === 'contact') {
+    return (
+      <Center render={<main />} gutters={10}>
+        <PageLayoutRenderer sections={page.layout} centerSections={false} />
+      </Center>
+    );
   }
 
   return (
