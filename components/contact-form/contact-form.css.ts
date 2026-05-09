@@ -3,13 +3,13 @@ import { style } from '@vanilla-extract/css';
 
 export const contactForm = style({
   inlineSize: '100%',
-  maxInlineSize: '38rem',
 });
 
 export const control = style({
   display: 'block',
   inlineSize: '100%',
-  minBlockSize: sys.spacing[14],
+  minBlockSize: sys.spacing[10],
+  paddingBlock: sys.spacing[4],
 });
 
 export const messageControl = style([
