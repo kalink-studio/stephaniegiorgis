@@ -209,6 +209,7 @@ export type PageLayoutSection =
 /* ------------------------------------------------------------------ */
 
 export type DocumentationGridLayout =
+  | 'Image'
   | 'Grid 1/1'
   | 'Grid 1/2'
   | 'Grid 2/1'

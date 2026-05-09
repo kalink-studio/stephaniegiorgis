@@ -1,6 +1,7 @@
 'use client';
 
 import { Button, Cluster, Field, Stack, Text } from '@kalink-ui/seedly-react';
+import { clsx } from 'clsx';
 import { Check } from 'lucide-react';
 import {
   ComponentPropsWithoutRef,
@@ -13,9 +14,19 @@ import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { sendForm } from '@/components/contact-form/send-form';
 import { MessageInputs } from '@/components/contact-form/types';
 
+import {
+  actions,
+  contactForm,
+  control as controlClassName,
+  messageControl,
+} from './contact-form.css';
+
 const REQUIRED_RULE = { required: 'Ce champ est requis' } as const;
 
-export const ContactForm = (props: ComponentPropsWithoutRef<'form'>) => {
+export const ContactForm = ({
+  className,
+  ...props
+}: ComponentPropsWithoutRef<'form'>) => {
   const { control, handleSubmit, reset } = useForm<MessageInputs>({
     defaultValues: {
       name: '',
@@ -45,7 +56,11 @@ export const ContactForm = (props: ComponentPropsWithoutRef<'form'>) => {
   );
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} {...props}>
+    <form
+      {...props}
+      className={clsx(contactForm, className)}
+      onSubmit={handleSubmit(onSubmit)}
+    >
       <Stack spacing={6} align="stretch">
         <Controller
           name="name"
@@ -63,6 +78,7 @@ export const ContactForm = (props: ComponentPropsWithoutRef<'form'>) => {
             >
               <Field.Label>Votre nom</Field.Label>
               <Field.Control
+                className={controlClassName}
                 ref={field.ref}
                 value={field.value}
                 onBlur={field.onBlur}
@@ -89,6 +105,7 @@ export const ContactForm = (props: ComponentPropsWithoutRef<'form'>) => {
             >
               <Field.Label>Votre email</Field.Label>
               <Field.Control
+                className={controlClassName}
                 ref={field.ref}
                 type="email"
                 value={field.value}
@@ -116,6 +133,7 @@ export const ContactForm = (props: ComponentPropsWithoutRef<'form'>) => {
             >
               <Field.Label>Sujet du message</Field.Label>
               <Field.Control
+                className={controlClassName}
                 ref={field.ref}
                 value={field.value}
                 onBlur={field.onBlur}
@@ -142,6 +160,7 @@ export const ContactForm = (props: ComponentPropsWithoutRef<'form'>) => {
             >
               <Field.Label>Message</Field.Label>
               <Field.Control
+                className={messageControl}
                 ref={field.ref}
                 render={<textarea />}
                 value={field.value}
@@ -153,7 +172,7 @@ export const ContactForm = (props: ComponentPropsWithoutRef<'form'>) => {
           )}
         />
 
-        <Cluster spacing={6}>
+        <Cluster spacing={6} className={actions}>
           <Button
             shape="small"
             variant="solid"

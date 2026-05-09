@@ -1,4 +1,5 @@
 export const documentationGridLayouts = [
+  { label: 'Image', value: 'Image' },
   { label: 'Grid 1/1', value: 'Grid 1/1' },
   { label: 'Grid 1/2', value: 'Grid 1/2' },
   { label: 'Grid 2/1', value: 'Grid 2/1' },
@@ -8,6 +9,7 @@ export const documentationGridLayouts = [
 ] as const;
 
 export const documentationGridImageCountByLayout = {
+  Image: 1,
   'Grid 1/1': 2,
   'Grid 1/2': 3,
   'Grid 2/1': 3,
