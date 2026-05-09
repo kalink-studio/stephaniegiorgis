@@ -23,9 +23,14 @@ import type {
   DocumentationImageGridBlock,
   DocumentationSection,
   ImageTransformValue,
+  TransformKey,
 } from '@/payload/runtime';
 
-import { documentationImageItem, imageRow } from './documentation-renderer.css';
+import {
+  documentationImageFrame,
+  documentationImageItem,
+  imageRow,
+} from './documentation-renderer.css';
 
 interface DocumentationRendererProps {
   sections: DocumentationSection[] | null | undefined;
@@ -160,6 +165,28 @@ function toGalleryItems(items: ImageTransformValue[]): GalleryItem[] {
   });
 }
 
+const IMAGE_TRANSFORM_KEYS: TransformKey[] = [
+  '2_3',
+  '3_2',
+  '1_1',
+  '4_3',
+  '16_9',
+];
+
+function getRenderTransformKey(
+  item: ImageTransformValue,
+): TransformKey | undefined {
+  const selectedTransform = getSelectedTransformKey(item);
+
+  if (selectedTransform) {
+    return selectedTransform;
+  }
+
+  return IMAGE_TRANSFORM_KEYS.find((key) => {
+    return item.presets?.[key]?.derivative;
+  });
+}
+
 /* ------------------------------------------------------------------ */
 /*  ImageGrid — wraps all images from a docGrid in one Gallery context */
 /* ------------------------------------------------------------------ */
@@ -245,7 +272,7 @@ function DocumentationImageEntry({
   index: number;
   sizes?: string;
 }) {
-  const selectedTransform = getSelectedTransformKey(item) ?? undefined;
+  const selectedTransform = getRenderTransformKey(item);
   const url = getMediaUrl(item, selectedTransform);
   const altText = getMediaAlt(item);
   const alt = altText
@@ -274,9 +301,10 @@ function DocumentationImageEntry({
         use={PayloadImage}
         media={item}
         transform={selectedTransform}
+        className={documentationImageFrame}
         ratio={ratio}
         sizes={sizes}
-        cover
+        cover={Boolean(ratio)}
       />
     </GalleryTrigger>
   );

@@ -981,7 +981,7 @@ export interface Artwork {
   documentationSections?:
     | (
         | {
-            layout: 'Grid 1/1' | 'Grid 1/2' | 'Grid 2/1' | 'Grid 2/2' | 'Grid 1/1/1' | 'Grid 1/1/2';
+            layout: 'Image' | 'Grid 1/1' | 'Grid 1/2' | 'Grid 2/1' | 'Grid 2/2' | 'Grid 1/1/1' | 'Grid 1/1/2';
             /**
              * Add the exact number of image rows required by the selected layout.
              */
