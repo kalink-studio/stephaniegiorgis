@@ -13,7 +13,7 @@ patches:
 
 images:
   - name: ghcr.io/kalink-studio/stephaniegiorgis
-    newTag: b9d833d
+    newTag: d500cb5
 
 replicas:
   - name: stephaniegiorgis
