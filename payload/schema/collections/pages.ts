@@ -4,6 +4,7 @@ import { pageLayoutField } from '../fields/pageLayout.ts';
 import { seoField } from '../fields/seo.ts';
 import { getPageRevalidationEntries } from '../utils/publicInvalidation.ts';
 import { triggerRevalidation } from '../utils/revalidate.ts';
+import { normalizeEmptyRichText } from '../utils/richText.ts';
 
 import type { CollectionConfig } from 'payload';
 
@@ -35,6 +36,16 @@ export const Pages: CollectionConfig = {
     },
   },
   hooks: {
+    afterRead: [
+      ({ doc }) => {
+        return normalizeEmptyRichText(doc) ?? doc;
+      },
+    ],
+    beforeChange: [
+      ({ data }) => {
+        return normalizeEmptyRichText(data) ?? data;
+      },
+    ],
     afterChange: [
       async ({ doc, operation, previousDoc }) => {
         await triggerRevalidation(

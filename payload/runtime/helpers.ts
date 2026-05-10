@@ -1,3 +1,5 @@
+import { getPayloadServerURL, normalizeOrigin } from './serverUrl';
+
 import type {
   ArtworkDocument,
   ImageTransformValue,
@@ -122,24 +124,12 @@ const DEFAULT_PRODUCTION_MEDIA_ORIGIN = 'https://media.stephaniegiorgis.ch';
 const DEFAULT_STAGING_MEDIA_ORIGIN =
   'https://staging-media.stephaniegiorgis.ch';
 
-const trimTrailingSlash = (value: string) => value.replace(/\/+$/, '');
-
-const normalizeOrigin = (value: string | null | undefined) => {
-  if (!value) {
-    return null;
-  }
-
-  try {
-    return new URL(value).origin;
-  } catch {
-    return trimTrailingSlash(value);
-  }
-};
-
 const getRuntimeHostname = () => {
-  if (process.env.PAYLOAD_PUBLIC_SERVER_URL) {
+  const serverURL = getPayloadServerURL();
+
+  if (serverURL) {
     try {
-      return new URL(process.env.PAYLOAD_PUBLIC_SERVER_URL).hostname;
+      return new URL(serverURL).hostname;
     } catch {
       // fall through
     }
@@ -348,10 +338,10 @@ const toRelativeSameOriginUrl = (url: string): string => {
     const parsed = new URL(url);
     const candidateOrigins = new Set<string>();
 
-    if (process.env.PAYLOAD_PUBLIC_SERVER_URL) {
-      candidateOrigins.add(
-        new URL(process.env.PAYLOAD_PUBLIC_SERVER_URL).origin,
-      );
+    const serverURL = getPayloadServerURL();
+
+    if (serverURL) {
+      candidateOrigins.add(new URL(serverURL).origin);
     }
 
     if (typeof window !== 'undefined' && window.location?.origin) {

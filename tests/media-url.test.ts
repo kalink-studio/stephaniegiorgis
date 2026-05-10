@@ -5,6 +5,10 @@ import {
   getMediaPurgeUrls,
   toPublicMediaUrl,
 } from '../payload/runtime/helpers.ts';
+import {
+  getPayloadServerURL,
+  normalizeOrigin,
+} from '../payload/runtime/serverUrl.ts';
 
 const ORIGINAL_ENV = { ...process.env };
 
@@ -52,6 +56,35 @@ test('toPublicMediaUrl rewrites Payload derivative file URLs to the staging medi
     }),
     'https://staging-media.stephaniegiorgis.ch/derivatives/crop.jpg?v=2026-05-06T10%3A00%3A00.000Z',
   );
+});
+
+test('getPayloadServerURL falls back to production when no deployment env is present', () => {
+  delete process.env.PAYLOAD_PUBLIC_SERVER_URL;
+  delete process.env.S3_BUCKET;
+
+  assert.equal(
+    getPayloadServerURL(),
+    'https://www.stephaniegiorgis.ch',
+  );
+});
+
+test('toPublicMediaUrl infers production media host from production bucket', () => {
+  delete process.env.PAYLOAD_PUBLIC_SERVER_URL;
+  process.env.PUBLIC_MEDIA_ORIGIN_PRODUCTION =
+    'https://media.stephaniegiorgis.ch';
+  process.env.S3_BUCKET = 'stephaniegiorgis-production';
+
+  assert.equal(
+    toPublicMediaUrl('/api/media/file/example.jpg', {
+      id: 1,
+      updatedAt: '2026-05-06T10:00:00.000Z',
+    }),
+    'https://media.stephaniegiorgis.ch/media/example.jpg?v=2026-05-06T10%3A00%3A00.000Z',
+  );
+});
+
+test('normalizeOrigin trims malformed origin strings', () => {
+  assert.equal(normalizeOrigin('https://example.com///'), 'https://example.com');
 });
 
 test('toPublicMediaUrl rewrites absolute Payload media file URLs on the app origin', () => {

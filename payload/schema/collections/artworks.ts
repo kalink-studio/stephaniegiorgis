@@ -11,6 +11,7 @@ import {
 import { seoField } from '../fields/seo.ts';
 import { getArtworkRevalidationEntries } from '../utils/publicInvalidation.ts';
 import { triggerRevalidation } from '../utils/revalidate.ts';
+import { normalizeEmptyRichText } from '../utils/richText.ts';
 
 import type { CollectionConfig } from 'payload';
 
@@ -42,18 +43,23 @@ export const Artworks: CollectionConfig = {
     },
   },
   hooks: {
+    afterRead: [
+      ({ doc }) => {
+        return normalizeEmptyRichText(doc) ?? doc;
+      },
+    ],
     beforeChange: [
       ({ data }) => {
         if (!data || typeof data !== 'object') {
           return data;
         }
 
-        return {
+        return normalizeEmptyRichText({
           ...data,
           documentationSections: normalizeDocumentationSections(
             data.documentationSections,
           ),
-        };
+        });
       },
     ],
     afterChange: [
