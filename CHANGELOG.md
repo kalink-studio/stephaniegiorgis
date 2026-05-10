@@ -1,5 +1,11 @@
 # stephaniegiorgis
 
+## 0.3.3
+
+### Patch Changes
+
+- 46befdc: Constrain link list cards to the same grid sizing as artwork cards.
+
 ## 0.3.2
 
 ### Patch Changes
