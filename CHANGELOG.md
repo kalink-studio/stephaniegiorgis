@@ -1,5 +1,11 @@
 # stephaniegiorgis
 
+## 0.3.2
+
+### Patch Changes
+
+- c6164f6: Fix Payload admin rich text fields with empty Lexical state and make media transform generation resolve stored upload URLs.
+
 ## 0.3.1
 
 ### Patch Changes
