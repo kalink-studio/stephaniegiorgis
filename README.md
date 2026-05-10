@@ -10,3 +10,7 @@ Made with Payload and Next.js.
 4. Run `pnpm dev`
 
 Required variables are documented in `.env.example`.
+
+Set `PAYLOAD_ENABLE_SCHEMA_PUSH=true` only for local schema iteration against a disposable
+development database. Leave it unset or `false` for staging, production, and one-off import
+scripts.

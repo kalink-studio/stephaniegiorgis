@@ -57,6 +57,9 @@ const rawConnectionString =
     : process.env.DATABASE_URL || process.env.DATABASE_URL_DIRECT || '';
 
 const connectionString = normalizePostgresConnectionString(rawConnectionString);
+const shouldPushDevelopmentSchema =
+  process.env.NODE_ENV === 'development' &&
+  process.env.PAYLOAD_ENABLE_SCHEMA_PUSH === 'true';
 
 function getPayloadSecret() {
   if (process.env.PAYLOAD_SECRET) {
@@ -109,7 +112,7 @@ export default buildConfig({
       connectionString,
     },
     migrationDir: path.resolve(dirname, 'migrations'),
-    push: process.env.NODE_ENV === 'development',
+    push: shouldPushDevelopmentSchema,
   }),
   sharp,
   typescript: {
