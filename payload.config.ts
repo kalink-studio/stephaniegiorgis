@@ -76,6 +76,12 @@ function getPayloadSecret() {
 const derivatives = createImageTransformDerivativeCollection({
   slug: 'derivatives',
   sourceRelationTo: 'media',
+  upload: {
+    resizeOptions: {
+      width: 1600,
+      withoutEnlargement: true,
+    },
+  },
   admin: {
     hidden: true,
   },
