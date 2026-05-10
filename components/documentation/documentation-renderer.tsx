@@ -46,7 +46,7 @@ export function DocumentationRenderer({
   }
 
   return (
-    <Stack spacing={4} {...props}>
+    <Stack spacing={4} align="stretch" {...props}>
       {sections.map((section, sectionIndex) => (
         <DocumentationSectionRenderer
           key={section.id ?? sectionIndex}
