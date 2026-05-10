@@ -11,15 +11,16 @@ import type { CaptionImageBlock } from '@/payload/runtime/types';
 
 interface Props {
   block: CaptionImageBlock;
+  sizes?: string;
 }
 
-export function CaptionImageBlockComponent({ block }: Props) {
+export function CaptionImageBlockComponent({ block, sizes }: Props) {
   const selectedTransform = getSelectedTransformKey(block.image) ?? undefined;
 
   return (
     <Stack render={<section />} spacing={3} align="stretch">
       {!selectedTransform ? (
-        <PayloadImage media={block.image} />
+        <PayloadImage media={block.image} sizes={sizes} />
       ) : (
         <Frame
           use={PayloadImage}
@@ -34,6 +35,7 @@ export function CaptionImageBlockComponent({ block }: Props) {
               | '16:9'
           }
           cover
+          sizes={sizes}
         />
       )}
       {block.caption && <LexicalRichText content={block.caption} />}

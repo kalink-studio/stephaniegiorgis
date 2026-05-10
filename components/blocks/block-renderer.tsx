@@ -13,13 +13,18 @@ import { VideoBlockComponent } from './blocks/video-block';
 interface BlockRendererProps {
   blocks: PageBlock[] | null | undefined;
   className?: string;
+  imageSizes?: string;
 }
 
 /**
  * Replacement for Prismic's SliceZone.
  * Maps each Payload block type to its corresponding React component.
  */
-export function BlockRenderer({ blocks, className }: BlockRendererProps) {
+export function BlockRenderer({
+  blocks,
+  className,
+  imageSizes,
+}: BlockRendererProps) {
   if (!blocks || blocks.length === 0) {
     return null;
   }
@@ -27,18 +32,28 @@ export function BlockRenderer({ blocks, className }: BlockRendererProps) {
   return (
     <Stack spacing={8} align="stretch" className={className}>
       {blocks.map((block, index) => (
-        <BlockSwitch key={block.id ?? index} block={block} />
+        <BlockSwitch
+          key={block.id ?? index}
+          block={block}
+          imageSizes={imageSizes}
+        />
       ))}
     </Stack>
   );
 }
 
-function BlockSwitch({ block }: { block: PageBlock }): ReactNode {
+function BlockSwitch({
+  block,
+  imageSizes,
+}: {
+  block: PageBlock;
+  imageSizes?: string;
+}): ReactNode {
   switch (block.blockType) {
     case 'richText':
       return <RichTextBlockComponent block={block} />;
     case 'captionImage':
-      return <CaptionImageBlockComponent block={block} />;
+      return <CaptionImageBlockComponent block={block} sizes={imageSizes} />;
     case 'video':
       return <VideoBlockComponent block={block} />;
     case 'linkList':
