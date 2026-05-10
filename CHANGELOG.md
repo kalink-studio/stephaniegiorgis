@@ -1,5 +1,13 @@
 # stephaniegiorgis
 
+## 0.2.1
+
+### Patch Changes
+
+- ee64da7: Constrain documentation audio players to the artwork media column width.
+- d3a2402: Fix contact page layout width and form control sizing.
+- f33327d: Add a migration for the artwork documentation Image layout.
+
 ## 0.2.0
 
 ### Minor Changes
