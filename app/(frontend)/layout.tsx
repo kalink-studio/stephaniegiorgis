@@ -1,6 +1,4 @@
-import '@kalink-ui/seedly/styles/reset';
-import '@kalink-ui/seedly/styles/layers';
-
+import '@/styles/seedly-globals.css';
 import '@/styles/refs.css';
 import '@/styles/system-theme.css';
 import '@/styles/input-overrides.css';
