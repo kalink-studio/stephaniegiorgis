@@ -1,5 +1,12 @@
 # stephaniegiorgis
 
+## 0.2.2
+
+### Patch Changes
+
+- a0fe809: Fix single-image artwork documentation layouts filling their available width.
+- 01e0cb4: Remove the Instagram link from desktop and mobile navigation.
+
 ## 0.2.1
 
 ### Patch Changes
