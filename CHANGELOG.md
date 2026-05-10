@@ -1,5 +1,11 @@
 # stephaniegiorgis
 
+## 0.2.3
+
+### Patch Changes
+
+- 9bdb94a: Stretch artwork documentation sections so single-image layouts fill the available column width.
+
 ## 0.2.2
 
 ### Patch Changes
