@@ -1,4 +1,5 @@
 import { Stack, Text } from '@kalink-ui/seedly-react';
+import Image from 'next/image';
 import { Fragment } from 'react';
 
 import {
@@ -510,13 +511,14 @@ function renderNode(node: LexicalNode, key: number): ReactNode {
         typeof uploadDoc.height === 'number' ? uploadDoc.height : undefined;
 
       return (
-        <img
+        <Image
           key={key}
           src={url}
           alt={typeof alt === 'string' ? alt : ''}
-          width={width}
-          height={height}
+          width={width ?? 800}
+          height={height ?? 600}
           loading="lazy"
+          sizes="100vw"
         />
       );
     }
