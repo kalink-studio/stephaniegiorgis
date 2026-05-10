@@ -38,15 +38,14 @@ COPY . .
 
 # Disable telemetry during build
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV PAYLOAD_SECRET=build-time-payload-secret
 
 # Build arguments for environment variables needed at build time
 # ARG NEXT_PUBLIC_API_URL
 # ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
 RUN \
-  if [ -f pnpm-lock.yaml ]; then pnpm build; \
-  elif [ -f package-lock.json ]; then npm run build; \
+  if [ -f pnpm-lock.yaml ]; then PAYLOAD_SECRET=build-time-payload-secret pnpm build; \
+  elif [ -f package-lock.json ]; then PAYLOAD_SECRET=build-time-payload-secret npm run build; \
   else echo "No lockfile found." && exit 1; \
   fi
 
