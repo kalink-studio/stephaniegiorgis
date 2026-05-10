@@ -1,5 +1,11 @@
 # stephaniegiorgis
 
+## 0.3.1
+
+### Patch Changes
+
+- f3b6076: Use layout-aware image sizes for caption images, generate larger image transform derivatives, and remove mobile horizontal overflow from standard pages.
+
 ## 0.3.0
 
 ### Minor Changes
