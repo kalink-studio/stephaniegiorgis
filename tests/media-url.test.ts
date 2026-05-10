@@ -54,6 +54,21 @@ test('toPublicMediaUrl rewrites Payload derivative file URLs to the staging medi
   );
 });
 
+test('toPublicMediaUrl infers production media host from production bucket', () => {
+  delete process.env.PAYLOAD_PUBLIC_SERVER_URL;
+  process.env.PUBLIC_MEDIA_ORIGIN_PRODUCTION =
+    'https://media.stephaniegiorgis.ch';
+  process.env.S3_BUCKET = 'stephaniegiorgis-production';
+
+  assert.equal(
+    toPublicMediaUrl('/api/media/file/example.jpg', {
+      id: 1,
+      updatedAt: '2026-05-06T10:00:00.000Z',
+    }),
+    'https://media.stephaniegiorgis.ch/media/example.jpg?v=2026-05-06T10%3A00%3A00.000Z',
+  );
+});
+
 test('toPublicMediaUrl rewrites absolute Payload media file URLs on the app origin', () => {
   process.env.PAYLOAD_PUBLIC_SERVER_URL = 'https://staging.stephaniegiorgis.ch';
   process.env.PUBLIC_MEDIA_ORIGIN_STAGING =

@@ -1,3 +1,4 @@
+import { toPublicMediaUrl } from '../../runtime/helpers.ts';
 import { authenticated, anyone } from '../access/index.ts';
 import {
   purgeUploadAfterChange,
@@ -19,6 +20,18 @@ export const Media: CollectionConfig = {
   },
   upload: true,
   hooks: {
+    afterRead: [
+      ({ doc }) => {
+        if (typeof doc.url !== 'string') {
+          return doc;
+        }
+
+        return {
+          ...doc,
+          url: toPublicMediaUrl(doc.url, doc),
+        };
+      },
+    ],
     afterChange: [purgeUploadAfterChange],
     afterDelete: [purgeUploadAfterDelete],
   },

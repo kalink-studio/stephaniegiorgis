@@ -14,6 +14,7 @@ import { buildConfig } from 'payload';
 import sharp from 'sharp';
 
 import { SeedlyTypographyFeature } from './payload/editor/seedly-typography/server.ts';
+import { getPayloadServerURL } from './payload/runtime/serverUrl.ts';
 import { authenticated, anyone } from './payload/schema/access/index.ts';
 import { Artworks } from './payload/schema/collections/artworks.ts';
 import { Media } from './payload/schema/collections/media.ts';
@@ -93,7 +94,7 @@ const derivatives = createImageTransformDerivativeCollection({
 
 export default buildConfig({
   secret: getPayloadSecret(),
-  serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL,
+  serverURL: getPayloadServerURL(),
   admin: {
     user: Users.slug,
     importMap: {
