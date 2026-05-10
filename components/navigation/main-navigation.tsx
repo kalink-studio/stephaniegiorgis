@@ -2,14 +2,13 @@
 
 import {
   Box,
-  Button,
   Cluster,
   Drawer,
   List,
   Stack,
   Text,
 } from '@kalink-ui/seedly-react';
-import { Instagram, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import Link from 'next/link';
 import { useSelectedLayoutSegment } from 'next/navigation';
 import { ReactNode, useState } from 'react';
@@ -127,19 +126,6 @@ export function MainNavigationClient({ items }: MainNavigationProps) {
                             ))}
                           </List.Root>
                         </Stack>
-                        <Center>
-                          <Button
-                            render={
-                              <a href="https://www.instagram.com/stephaniegiorgis" />
-                            }
-                            nativeButton={false}
-                            icon={<Instagram size="20" strokeWidth={1.5} />}
-                            variant="ghost"
-                            tone="neutral"
-                            size="sm"
-                            aria-label="Instagram"
-                          />
-                        </Center>
                       </Stack>
                     </Box>
                   </Drawer.Content>
@@ -156,21 +142,6 @@ export function MainNavigationClient({ items }: MainNavigationProps) {
 
         <Hidden use={Cluster} at="mdDown" spacing={10} align="center">
           {navItems}
-          <Button
-            render={
-              <a
-                href="https://www.instagram.com/stephaniegiorgis"
-                target="_blank"
-                rel="noopener noreferrer"
-              />
-            }
-            nativeButton={false}
-            icon={<Instagram size="20" strokeWidth={1.5} />}
-            variant="ghost"
-            tone="neutral"
-            size="sm"
-            aria-label="Instagram"
-          />
         </Hidden>
       </Cluster>
     </Center>
