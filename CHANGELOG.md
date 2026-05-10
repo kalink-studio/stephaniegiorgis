@@ -1,5 +1,17 @@
 # stephaniegiorgis
 
+## 0.3.0
+
+### Minor Changes
+
+- 87d6400: Upgrade Next.js to 16 with Turbopack, update Payload and vanilla-extract integration, and opt GitHub Actions into the Node 24 JavaScript action runtime.
+
+### Patch Changes
+
+- c74402f: Update GitHub Actions workflow actions to Node 24 runtime versions.
+- 079c75e: Scope the dummy Payload build secret to the Docker build command.
+- 22ffcf3: Disable Payload schema push by default and add the missing migration snapshot for the artwork documentation image layout migration.
+
 ## 0.2.3
 
 ### Patch Changes
