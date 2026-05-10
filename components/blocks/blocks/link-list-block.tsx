@@ -1,5 +1,6 @@
-import { Box, Cluster, Stack, Text } from '@kalink-ui/seedly-react';
+import { Box, Grid, GridChild, Stack, Text } from '@kalink-ui/seedly-react';
 
+import { Frame } from '@/components/frame/frame';
 import { PayloadImage } from '@/components/image/payload-image';
 import type { LinkListBlock } from '@/payload/runtime/types';
 
@@ -15,33 +16,43 @@ export function LinkListBlockComponent({ block }: Props) {
   }
 
   return (
-    <Cluster spacing={6} justify="center">
+    <Grid minSize="12rem" autoLayout="fill" spacing={8} columns={6}>
       {items.map((item, index) => {
         if (!item.link) {
           return null;
         }
 
         return (
-          <Box
+          <GridChild
             render={
               <a href={item.link} target="_blank" rel="noopener noreferrer" />
             }
             key={item.link ?? index}
-            variant="solid"
-            colorSource="container"
-            colorKey="high"
-            spacing={6}
-            corner="small"
           >
-            <Stack align="stretch" spacing={4}>
-              {item.screenshot && (
-                <PayloadImage media={item.screenshot} transform="1_1" />
-              )}
-              {item.label && <Text>{item.label}</Text>}
-            </Stack>
-          </Box>
+            <Box
+              variant="solid"
+              colorSource="container"
+              colorKey="high"
+              spacing={6}
+              corner="small"
+            >
+              <Stack align="stretch" spacing={4}>
+                {item.screenshot && (
+                  <Frame
+                    use={PayloadImage}
+                    media={item.screenshot}
+                    transform="1_1"
+                    ratio="1:1"
+                    cover
+                    sizes="(max-width: 28rem) 100vw, (max-width: 56rem) 50vw, (max-width: 84rem) 33vw, 25rem"
+                  />
+                )}
+                {item.label && <Text>{item.label}</Text>}
+              </Stack>
+            </Box>
+          </GridChild>
         );
       })}
-    </Cluster>
+    </Grid>
   );
 }
