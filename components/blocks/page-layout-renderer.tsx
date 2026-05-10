@@ -146,11 +146,7 @@ function PageLayoutSectionRenderer({
     }
 
     return (
-      <Center
-        gutters={10}
-        size={sectionData.width ?? 'large'}
-        className={section}
-      >
+      <Center gutters={10} size={sectionData.width ?? 'large'}>
         {content}
       </Center>
     );
@@ -170,11 +166,7 @@ function PageLayoutSectionRenderer({
   }
 
   return (
-    <Center
-      gutters={10}
-      size={sectionData.width ?? 'large'}
-      className={section}
-    >
+    <Center gutters={10} size={sectionData.width ?? 'large'}>
       {content}
     </Center>
   );
