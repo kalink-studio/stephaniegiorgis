@@ -2,16 +2,18 @@
 # Optimized for production deployment on Kubernetes
 # Supports pnpm (preferred) or npm
 
+FROM node:26.13.1-alpine AS base
+WORKDIR /app
+
+FROM base AS build-base
+ENV SCARF_ANALYTICS=false
+RUN npm install --global corepack@0.36.0 && corepack enable pnpm
+
 # =============================================================================
 # Stage 1: Dependencies
 # =============================================================================
-FROM node:24-alpine AS deps
+FROM build-base AS deps
 RUN apk add --no-cache libc6-compat
-WORKDIR /app
-ENV SCARF_ANALYTICS=false
-
-# Enable corepack for pnpm
-RUN corepack enable pnpm
 
 # Install dependencies based on the preferred package manager
 COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml* package-lock.json* ./
@@ -26,12 +28,7 @@ RUN node -e "require('sharp'); console.log('sharp ok')"
 # =============================================================================
 # Stage 2: Builder
 # =============================================================================
-FROM node:24-alpine AS builder
-WORKDIR /app
-ENV SCARF_ANALYTICS=false
-
-# Enable corepack for pnpm
-RUN corepack enable pnpm
+FROM build-base AS builder
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -52,8 +49,7 @@ RUN \
 # =============================================================================
 # Stage 3: Runner
 # =============================================================================
-FROM node:24-alpine AS runner
-WORKDIR /app
+FROM base AS runner
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
