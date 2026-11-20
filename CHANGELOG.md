@@ -1,5 +1,11 @@
 # stephaniegiorgis
 
+## 0.3.4
+
+### Patch Changes
+
+- 90fb623: Serve Cloudflare image transformations from the media hostname and resolve upload URLs on the server, so page hostnames can be DNS-only.
+
 ## 0.3.3
 
 ### Patch Changes
