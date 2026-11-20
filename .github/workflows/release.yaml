@@ -92,7 +92,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version-file: '.nvmrc'
+          # Older release commits declare their Node version only in package.json.
+          node-version-file: ${{ hashFiles('.nvmrc') != '' && '.nvmrc' || 'package.json' }}
           cache: 'pnpm'
 
       - name: Install dependencies

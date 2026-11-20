@@ -4,8 +4,14 @@ Made with Payload and Next.js.
 
 ## Environment setup
 
-Run `nvm install && nvm use` to select the Node.js version in [.nvmrc](.nvmrc).
-Install the pnpm version specified by `packageManager` in [package.json](package.json).
+From the project root, select Node.js and install the dependencies with the project's pinned pnpm version.
+
+```sh
+nvm install
+npm install --global corepack@0.36.0
+corepack enable pnpm
+pnpm install --frozen-lockfile
+```
 
 1. Copy `.env.example` to `.env.local`
 2. Fill in all required secrets and service URLs
