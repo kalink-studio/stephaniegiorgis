@@ -2,6 +2,7 @@ import * as migration_20260315_131121 from './20260315_131121';
 import * as migration_20260316_121844_add_page_layout_sections from './20260316_121844_add_page_layout_sections';
 import * as migration_20260506_093837_add_caption_image_square_transform from './20260506_093837_add_caption_image_square_transform';
 import * as migration_20260509_200000_add_artwork_documentation_image_layout from './20260509_200000_add_artwork_documentation_image_layout';
+import * as migration_20261120_151423_cms_security_update from './20261120_151423_cms_security_update';
 
 export const migrations = [
   {
@@ -17,11 +18,16 @@ export const migrations = [
   {
     up: migration_20260506_093837_add_caption_image_square_transform.up,
     down: migration_20260506_093837_add_caption_image_square_transform.down,
-    name: '20260506_093837_add_caption_image_square_transform'
+    name: '20260506_093837_add_caption_image_square_transform',
   },
   {
     up: migration_20260509_200000_add_artwork_documentation_image_layout.up,
     down: migration_20260509_200000_add_artwork_documentation_image_layout.down,
     name: '20260509_200000_add_artwork_documentation_image_layout',
+  },
+  {
+    up: migration_20261120_151423_cms_security_update.up,
+    down: migration_20261120_151423_cms_security_update.down,
+    name: '20261120_151423_cms_security_update'
   },
 ];

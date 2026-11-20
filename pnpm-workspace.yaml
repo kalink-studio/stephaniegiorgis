@@ -4,3 +4,9 @@ onlyBuiltDependencies:
   - esbuild
   - sharp
   - unrs-resolver
+
+overrides:
+  # Seedly's published TypeScript source uses the Base UI 1.3 trigger types.
+  '@kalink-ui/seedly-react>@base-ui/react': '1.3.0'
+  # Lexical 0.50 requests happy-dom 20, which has unresolved high-severity advisories.
+  '@lexical/headless>happy-dom': '21.0.4'
