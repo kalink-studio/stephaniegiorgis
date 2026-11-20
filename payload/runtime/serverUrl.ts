@@ -1,5 +1,7 @@
-const DEFAULT_PRODUCTION_SERVER_URL = 'https://www.stephaniegiorgis.ch';
-const DEFAULT_STAGING_SERVER_URL = 'https://staging.stephaniegiorgis.ch';
+import {
+  DEFAULT_PRODUCTION_SERVER_URL,
+  DEFAULT_STAGING_SERVER_URL,
+} from './siteHosts.ts';
 
 export const normalizeOrigin = (value: string | null | undefined) => {
   if (!value) {

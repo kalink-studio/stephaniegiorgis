@@ -6,10 +6,12 @@ import '@/styles/input-overrides.css';
 import { Box, Text } from '@kalink-ui/seedly-react';
 import { clsx } from 'clsx';
 import { ReactNode } from 'react';
+import { preconnect } from 'react-dom';
 
 import { Center } from '@/components/center';
 import { RefreshRouteOnSave } from '@/components/live-preview/refresh-route-on-save';
 import { MainNavigationClient } from '@/components/navigation/main-navigation';
+import { getPublicMediaOrigin } from '@/payload/runtime';
 import { getMainNavigation } from '@/payload/runtime/queries';
 import { fontClass } from '@/styles/font';
 
@@ -31,6 +33,12 @@ export default async function FrontendLayout({
   children: ReactNode;
 }) {
   const nav = await getMainNavigation();
+  const mediaOrigin = getPublicMediaOrigin();
+
+  // Images load from the media host, a separate origin from the page.
+  if (mediaOrigin) {
+    preconnect(mediaOrigin);
+  }
 
   return (
     <html lang="en" className={clsx(fontClass, html)}>

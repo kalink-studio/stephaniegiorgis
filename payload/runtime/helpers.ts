@@ -1,4 +1,11 @@
-import { getPayloadServerURL, normalizeOrigin } from './serverUrl';
+import { getPayloadServerURL, normalizeOrigin } from './serverUrl.ts';
+import {
+  DEFAULT_PRODUCTION_MEDIA_ORIGIN,
+  DEFAULT_STAGING_MEDIA_ORIGIN,
+  PAGE_HOSTNAMES,
+  PRODUCTION_PAGE_HOSTNAMES,
+  STAGING_PAGE_HOSTNAMES,
+} from './siteHosts.ts';
 
 import type {
   ArtworkDocument,
@@ -120,26 +127,33 @@ const isUploadDocument = (value: unknown): value is UploadDocument => {
 };
 
 const DEFAULT_S3_PUBLIC_ENDPOINT = 'https://s3.pub2.infomaniak.cloud';
-const DEFAULT_PRODUCTION_MEDIA_ORIGIN = 'https://media.stephaniegiorgis.ch';
-const DEFAULT_STAGING_MEDIA_ORIGIN =
-  'https://staging-media.stephaniegiorgis.ch';
+
+/**
+ * Origin the app is running on. In the browser this is the page origin:
+ * server-only variables such as `PAYLOAD_PUBLIC_SERVER_URL` and `S3_BUCKET`
+ * are not bundled, so `getPayloadServerURL()` would fall back to the
+ * production URL even on staging.
+ */
+const getRuntimeOrigin = () => {
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    return window.location.origin;
+  }
+
+  return getPayloadServerURL() ?? null;
+};
 
 const getRuntimeHostname = () => {
-  const serverURL = getPayloadServerURL();
+  const runtimeOrigin = getRuntimeOrigin();
 
-  if (serverURL) {
-    try {
-      return new URL(serverURL).hostname;
-    } catch {
-      // fall through
-    }
+  if (!runtimeOrigin) {
+    return null;
   }
 
-  if (typeof window !== 'undefined' && window.location?.hostname) {
-    return window.location.hostname;
+  try {
+    return new URL(runtimeOrigin).hostname;
+  } catch {
+    return null;
   }
-
-  return null;
 };
 
 export const getPublicMediaOrigin = () => {
@@ -151,17 +165,18 @@ export const getPublicMediaOrigin = () => {
 
   const runtimeHostname = getRuntimeHostname();
 
-  if (runtimeHostname === 'staging.stephaniegiorgis.ch') {
+  if (!runtimeHostname) {
+    return null;
+  }
+
+  if (STAGING_PAGE_HOSTNAMES.has(runtimeHostname)) {
     return (
       normalizeOrigin(process.env.PUBLIC_MEDIA_ORIGIN_STAGING) ??
       DEFAULT_STAGING_MEDIA_ORIGIN
     );
   }
 
-  if (
-    runtimeHostname === 'www.stephaniegiorgis.ch' ||
-    runtimeHostname === 'stephaniegiorgis.ch'
-  ) {
+  if (PRODUCTION_PAGE_HOSTNAMES.has(runtimeHostname)) {
     return (
       normalizeOrigin(process.env.PUBLIC_MEDIA_ORIGIN_PRODUCTION) ??
       DEFAULT_PRODUCTION_MEDIA_ORIGIN
@@ -244,10 +259,85 @@ const getUploadVersion = (media?: Partial<UploadDocument> | null) => {
   return null;
 };
 
+/** Origins the app itself is served from (server URL and, in the browser, the page). */
+const getAppOrigins = () => {
+  return new Set(
+    [process.env.PAYLOAD_PUBLIC_SERVER_URL, getRuntimeOrigin()]
+      .map(normalizeOrigin)
+      .filter(Boolean),
+  );
+};
+
+const isLoopbackHostname = (hostname: string) => {
+  const host = hostname.toLowerCase().replace(/\.$/, '');
+
+  return (
+    host === 'localhost' ||
+    host.endsWith('.localhost') ||
+    host === '[::1]' ||
+    host === '0.0.0.0' ||
+    /^127(?:\.\d{1,3}){3}$/.test(host)
+  );
+};
+
+/**
+ * In the browser, parse `url` when it is an upload URL the server already made
+ * public: an `https:` `/media/*` or `/derivatives/*` URL on another origin than
+ * the page, a known page host, S3 or a loopback host. The browser keeps such
+ * URLs as-is because it cannot read `PUBLIC_MEDIA_ORIGIN*` to re-resolve them
+ * the way the server did. The server always applies the full rewrite rules
+ * below.
+ */
+const parseServerResolvedMediaUrl = (url: string) => {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  try {
+    const parsed = new URL(url);
+
+    if (
+      parsed.protocol === 'https:' &&
+      isMediaPath(parsed.pathname) &&
+      !getAppOrigins().has(parsed.origin) &&
+      parsed.origin !== getS3PublicEndpoint() &&
+      !PAGE_HOSTNAMES.has(parsed.hostname) &&
+      !isLoopbackHostname(parsed.hostname)
+    ) {
+      return parsed;
+    }
+  } catch {
+    // Relative or invalid URL.
+  }
+
+  return null;
+};
+
+const withUploadVersion = (
+  url: URL,
+  media?: Partial<UploadDocument> | null,
+) => {
+  const version = getUploadVersion(media);
+
+  if (version) {
+    url.searchParams.set('v', version);
+  }
+
+  return url.toString();
+};
+
 export function toPublicMediaUrl(
   url: string,
   media?: Partial<UploadDocument> | null,
 ): string {
+  // Keep URLs the server already resolved, so browser rendering cannot
+  // diverge from SSR.
+  const resolvedUrl = parseServerResolvedMediaUrl(url);
+
+  if (resolvedUrl) {
+    return withUploadVersion(resolvedUrl, media);
+  }
+
   const publicMediaOrigin = getPublicMediaOrigin();
 
   if (!publicMediaOrigin) {
@@ -270,13 +360,11 @@ export function toPublicMediaUrl(
     uploadPath = getUploadPathFromPayloadFilePath(parsed.pathname);
 
     if (uploadPath) {
-      const publicServerUrl = normalizeOrigin(
-        process.env.PAYLOAD_PUBLIC_SERVER_URL,
-      );
-
+      // Loopback URLs are this app reached through another interface.
       if (
         parsed.origin !== publicMediaOrigin &&
-        parsed.origin !== publicServerUrl
+        !getAppOrigins().has(parsed.origin) &&
+        !isLoopbackHostname(parsed.hostname)
       ) {
         uploadPath = null;
       }
@@ -297,13 +385,7 @@ export function toPublicMediaUrl(
   publicUrl.search = parsed.search;
   publicUrl.hash = parsed.hash;
 
-  const version = getUploadVersion(media);
-
-  if (version) {
-    publicUrl.searchParams.set('v', version);
-  }
-
-  return publicUrl.toString();
+  return withUploadVersion(publicUrl, media);
 }
 
 export function getMediaPurgeUrls(
@@ -355,9 +437,7 @@ const toRelativeSameOriginUrl = (url: string): string => {
     // When the URL points to localhost/127.0.0.1 with the same port as
     // a known origin, it's the same server accessed via a different
     // interface (e.g. LAN IP vs localhost). Strip it to relative.
-    const LOCAL_HOSTNAMES = new Set(['localhost', '127.0.0.1', '[::1]']);
-
-    if (LOCAL_HOSTNAMES.has(parsed.hostname)) {
+    if (isLoopbackHostname(parsed.hostname)) {
       if (parsed.pathname.startsWith('/api/')) {
         return `${parsed.pathname}${parsed.search}${parsed.hash}`;
       }

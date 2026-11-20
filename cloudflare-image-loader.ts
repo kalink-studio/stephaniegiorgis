@@ -1,3 +1,5 @@
+import { MEDIA_HOSTNAMES } from './payload/runtime/siteHosts.ts';
+
 import type { ImageLoaderProps } from 'next/image';
 
 const DEFAULT_QUALITY = 75;
@@ -6,12 +8,23 @@ interface CloudflareImageLoaderOptions extends ImageLoaderProps {
   enabled?: boolean;
 }
 
-const isTransformableSource = (src: string) => {
-  if (!src || src.startsWith('data:') || src.startsWith('blob:')) {
-    return false;
+/**
+ * Origin that runs the transformation for `src`, or `null` when the source is
+ * not on a Cloudflare-proxied media host. Media hosts serve `/cdn-cgi/image/*`
+ * themselves; page hostnames may be DNS-only, so theirs cannot be relied on.
+ */
+const getTransformOrigin = (src: string) => {
+  try {
+    const { hostname, origin, protocol } = new URL(src);
+
+    if (protocol === 'https:' && MEDIA_HOSTNAMES.has(hostname)) {
+      return origin;
+    }
+  } catch {
+    // Relative, data: or invalid source.
   }
 
-  return true;
+  return null;
 };
 
 export const buildCloudflareImageUrl = ({
@@ -20,7 +33,9 @@ export const buildCloudflareImageUrl = ({
   quality,
   enabled = process.env.NODE_ENV === 'production',
 }: CloudflareImageLoaderOptions) => {
-  if (!enabled || !isTransformableSource(src)) {
+  const transformOrigin = enabled ? getTransformOrigin(src) : null;
+
+  if (!transformOrigin) {
     return src;
   }
 
@@ -33,7 +48,7 @@ export const buildCloudflareImageUrl = ({
     'onerror=redirect',
   ].join(',');
 
-  return `/cdn-cgi/image/${options}/${src}`;
+  return `${transformOrigin}/cdn-cgi/image/${options}/${src}`;
 };
 
 export default function cloudflareImageLoader(props: ImageLoaderProps) {
