@@ -1,5 +1,11 @@
 # stephaniegiorgis
 
+## 0.3.5
+
+### Patch Changes
+
+- 6e82cbe: Upgrade Node.js to 26.13.1 for development, CI, and the production container.
+
 ## 0.3.4
 
 ### Patch Changes
