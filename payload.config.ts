@@ -25,6 +25,7 @@ import {
   purgeUploadAfterChange,
   purgeUploadAfterDelete,
 } from './payload/schema/utils/publicInvalidation.ts';
+import { publicMediaUrlAfterRead } from './payload/schema/utils/publicMediaUrl.ts';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -93,6 +94,7 @@ const derivatives = createImageTransformDerivativeCollection({
     delete: authenticated,
   },
   hooks: {
+    afterRead: [publicMediaUrlAfterRead],
     afterChange: [purgeUploadAfterChange],
     afterDelete: [purgeUploadAfterDelete],
   },

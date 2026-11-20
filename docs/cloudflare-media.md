@@ -10,12 +10,14 @@ the Stephanie-specific values and implementation.
 
 - Move `stephaniegiorgis.ch` to Cloudflare or add the zone to the existing
   account.
-- Proxy these records through Cloudflare:
-  - `stephaniegiorgis.ch`
-  - `www.stephaniegiorgis.ch`
-  - `staging.stephaniegiorgis.ch`
+- Proxy the media records through Cloudflare. They serve the media Worker and
+  every image transformation:
   - `media.stephaniegiorgis.ch`
   - `staging-media.stephaniegiorgis.ch`
+- The page records (`stephaniegiorgis.ch`, `www.stephaniegiorgis.ch`,
+  `staging.stephaniegiorgis.ch`) can be proxied or DNS-only. Image URLs never
+  depend on the page hostname. Before switching a page record to DNS-only,
+  complete the [cutover checklist](#dns-only-page-hosts).
 - Use Full Strict SSL.
 
 ## Image transformations
@@ -73,12 +75,34 @@ URLs and invalidate them when Payload content changes.
 - `next.config.ts` uses `cloudflare-image-loader.ts` as the production
   `next/image` loader.
 - `cloudflare-image-loader.ts` emits
-  `/cdn-cgi/image/format=auto,width=<width>,quality=<quality>,fit=scale-down,metadata=none,onerror=redirect/<source>`.
+  `<media-origin>/cdn-cgi/image/format=auto,width=<width>,quality=<quality>,fit=scale-down,metadata=none,onerror=redirect/<source>`
+  for sources on `https://media.stephaniegiorgis.ch` or
+  `https://staging-media.stephaniegiorgis.ch`. The transformation runs on that
+  media host, so it keeps working when the page hostnames are DNS-only. Any
+  other source is returned unchanged, without optimization.
+- The page and media hostnames live in `payload/runtime/siteHosts.ts`, shared
+  by the loader, the browser bundle and the server, because browser bundles
+  cannot read the server-only `PUBLIC_MEDIA_ORIGIN*` variables. A new media
+  origin set through `PUBLIC_MEDIA_ORIGIN*` must be added to `MEDIA_HOSTNAMES`
+  there; otherwise its images are served unoptimized. Also add it to
+  `images.remotePatterns` in `next.config.ts` (not used by the custom loader,
+  but kept in sync by a test in case the loader is removed).
 - `payload/runtime/helpers.ts` normalizes media URLs through
   `toPublicMediaUrl()` and `getMediaUrl()`.
+- The `media` and `derivatives` collections run `toPublicMediaUrl()` in an
+  `afterRead` hook, so documents sent to client components already carry
+  media-host URLs.
 - `toPublicMediaUrl()` rewrites Infomaniak S3 URLs, `/media/*`,
   `/derivatives/*`, `/api/media/file/*`, and `/api/derivatives/file/*` to the
-  public media hostname.
+  public media hostname of the current environment. In the browser only,
+  absolute HTTPS `/media/*` and `/derivatives/*` URLs on another origin than
+  the page, a page host, S3 or a loopback host are treated as already resolved
+  by the server and kept as-is (apart from `v=`), because the browser cannot
+  read `PUBLIC_MEDIA_ORIGIN*` to resolve them again.
+- In the browser, `toPublicMediaUrl()` uses `window.location` to pick the
+  media host and to recognize same-origin Payload file URLs, because
+  server-only variables such as `PAYLOAD_PUBLIC_SERVER_URL` are not bundled.
+  This is a fallback for URLs that reach client components unresolved.
 - `toPublicMediaUrl()` adds `v=` from `sourceVersion`, `fingerprint`, or
   `updatedAt` so edited media gets new Cloudflare cache keys.
 - Rendered image components should use `PayloadImage` or `getMediaUrl()` rather
@@ -88,10 +112,14 @@ URLs and invalidate them when Payload content changes.
 - Payload media hooks call `getMediaPurgeUrls()` after create/update/delete so
   Cloudflare purges original public media URLs.
 
-Raw `/api/media/file` or `/api/derivatives/file` strings may still appear inside
-serialized Payload hydration data when client components receive full CMS
-objects. That is acceptable as long as the actual rendered image `src` and
-`srcSet` values use `/cdn-cgi/image/.../https://staging-media...`.
+Upload URLs in `media` and `derivatives` documents are rewritten on the server,
+so their `url` fields carry media-host URLs in hydration data. Raw
+`/api/media/file` or `/api/derivatives/file` strings still appear in fields the
+hooks do not rewrite, such as Payload's `thumbnailURL`, which no frontend
+component reads. That is acceptable as long as the actual
+rendered image `src` and `srcSet` values, including those rendered in the
+browser after hydration, use
+`https://staging-media.stephaniegiorgis.ch/cdn-cgi/image/.../https://staging-media...`.
 
 ## Validation
 
@@ -114,18 +142,77 @@ kubectl -n argocd annotate application stephaniegiorgis-staging \
   argocd.argoproj.io/refresh=hard --overwrite
 ```
 
-Check rendered page output:
+Check rendered page output. This lists the prefix of every `src` and `srcSet`
+candidate of every rendered `<img>`; run it on the listing and on an artwork
+page:
 
 ```bash
 curl -sL -H 'Cache-Control: no-cache' https://staging.stephaniegiorgis.ch/artworks \
-  | rg -o '/cdn-cgi/image|staging-media\.stephaniegiorgis\.ch|/api/derivatives/file' \
+  | rg -o '<img [^>]*>' \
+  | rg -o '\b(src|srcSet)="[^"]+"' \
+  | sed -E 's/^(src|srcSet)="//; s/"$//' \
+  | tr ' ' '\n' | grep -vE '^([0-9]+w,?)?$' \
+  | sed -E 's#^(https://[^/]+/cdn-cgi/image/).*#\1#; s#^(/cdn-cgi/image/).*#\1#; s#^(.{0,60}).*#\1#' \
   | sort | uniq -c
 ```
 
 Expected:
 
-- rendered image `src` and `srcSet` URLs contain `/cdn-cgi/image`
-- rendered image source origins contain `staging-media.stephaniegiorgis.ch`
-- rendered image `src` and `srcSet` URLs do not contain `/api/derivatives/file`
-- HTML responses show `cf-cache-status: DYNAMIC`
+- the only line is `https://staging-media.stephaniegiorgis.ch/cdn-cgi/image/`;
+  a production media host here means the staging server resolved itself as
+  production (check `PAYLOAD_PUBLIC_SERVER_URL`)
+- no bare `/cdn-cgi/image/` (page-relative) line and no untransformed source
 - transformed image responses include `cf-resized`
+- the page preconnects to the media host. Next.js usually sends the hint as a
+  `Link` response header rather than a `<link>` tag, so check both:
+  `curl -s -D - https://staging.stephaniegiorgis.ch/ | rg -io '<https://staging-media\.stephaniegiorgis\.ch>; rel=preconnect|<link rel="preconnect" href="https://staging-media[^"]*"'`
+  prints a match
+
+Client components such as the documentation gallery also build image URLs in
+the browser. On an artwork page, scroll through the gallery, open the
+lightbox, and run this in the DevTools console:
+
+```js
+{
+  const images = [...document.images].filter((img) => img.currentSrc);
+  console.log({
+    prefixes: [
+      ...new Set(
+        images.map((img) =>
+          img.currentSrc.replace(/(\/cdn-cgi\/image\/).*/, '$1'),
+        ),
+      ),
+    ],
+    broken: images
+      .filter((img) => img.complete && img.naturalWidth === 0)
+      .map((img) => img.currentSrc),
+    notLoaded: [...document.images]
+      .filter((img) => !img.complete || !img.currentSrc)
+      .map((img) => img.src || img.alt),
+  });
+}
+```
+
+`prefixes` must contain only the media host's `/cdn-cgi/image/` prefix and
+`broken` must be empty; `notLoaded` lists lazy images still outside the
+viewport. In the Network panel, filtered on `cdn-cgi`, image responses must be
+`200` with a `cf-resized` header.
+
+## DNS-only page hosts
+
+Before switching `www`, the apex or `staging` to DNS-only:
+
+1. Deploy this loader to the environment and run the validation above.
+2. Check that the ingress serves the hostname over publicly trusted HTTPS.
+   `curl` verifies the chain, the expiry and the hostname. The staging overlay
+   uses the `letsencrypt-staging` cluster issuer, which fails this check;
+   switch it to `letsencrypt-prod` first:
+
+   ```bash
+   curl --fail --show-error -sS -o /dev/null \
+     --resolve "staging.stephaniegiorgis.ch:443:<ingress-ip>" \
+     https://staging.stephaniegiorgis.ch/
+   ```
+
+3. Switch the record to DNS-only, then check that HTML no longer returns
+   `cf-ray` headers and that images still return `cf-resized`.
