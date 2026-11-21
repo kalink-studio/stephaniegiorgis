@@ -1,6 +1,5 @@
 'use client';
 
-import { $isHeadingNode } from '@lexical/rich-text';
 import { createClientFeature } from '@payloadcms/richtext-lexical/client';
 import {
   $getSelection,
@@ -12,7 +11,8 @@ import {
   type LexicalEditor,
   type LexicalNode,
   type ParagraphNode,
-} from 'lexical';
+} from '@payloadcms/richtext-lexical/lexical';
+import { $isHeadingNode } from '@payloadcms/richtext-lexical/lexical/rich-text';
 
 import {
   defaultHeadingTypography,
@@ -27,8 +27,8 @@ import {
   type SeedlyTypographyVariant,
 } from './shared';
 
-import type { HeadingNode } from '@lexical/rich-text';
 import type { ToolbarGroup } from '@payloadcms/richtext-lexical';
+import type { HeadingNode } from '@payloadcms/richtext-lexical/lexical/rich-text';
 import type { FC, ReactNode } from 'react';
 
 const seedlyVariantState = createState(seedlyVariantStateKey, {
