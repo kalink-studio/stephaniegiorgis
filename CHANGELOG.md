@@ -1,5 +1,11 @@
 # stephaniegiorgis
 
+## 0.3.6
+
+### Patch Changes
+
+- 2315296: Update Payload, Next.js, React, and sharp to address security advisories. Migrate the PostgreSQL fields used for password resets and media storage.
+
 ## 0.3.5
 
 ### Patch Changes
